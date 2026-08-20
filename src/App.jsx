@@ -1,6 +1,8 @@
 import './App.css'
 import Profile from './Profile'
 import Header from './Header'
+import Counter from './Counter';
+import InputControl from './InputControl';
 
 function App() {
   // parent component
@@ -45,7 +47,7 @@ function App() {
       id : 6,
       name : "Kayla",
       currentWeek : 9,
-      topic : "GF",
+      topic : "React",
       status : "Active"
     }
   ];
@@ -53,6 +55,13 @@ function App() {
   return (
     <>
       <Header/>
+
+      {/* only needs one tag? */}
+      <Counter/>
+      <hr />
+
+      <InputControl/>
+      <hr />
 
       <main className='container py-4'>
         <div className='row g-3'>
