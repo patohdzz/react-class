@@ -3,6 +3,10 @@ import Profile from './Profile'
 import Header from './Header'
 import Counter from './Counter';
 import InputControl from './InputControl';
+import SearchUsers from './SearchUsers';
+import LoadingUsers from './LoadingUsers';
+import ErrorMessage from './ErrorMessage';
+import UserList from './UserList';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -57,6 +61,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // variable for searching and filtering
+  const [searchText, setSearchText] = useState("");
+  const filteredUsers = users.filter((user) => {
+    return user.name.toLowerCase().includes(searchText.toLowerCase());
+  });
+
   useEffect(() => {
     // async makes this function synchronized; like running instructions step by step with no blocking of code
     async function loadUsers () {
@@ -70,11 +80,12 @@ function App() {
         const data = await response.json();
         setUsers(data); // our react will render again
 
-
       } catch (error) {
         // we got an error, write code for that scenario
         setErrorMessage(error.message);
 
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -84,62 +95,33 @@ function App() {
   return (
     <>
       <Header/>
-
-      {/* only needs one tag? */}
-      {/* <Counter/>
       <hr />
 
-      <InputControl/>
-      <hr /> */}
+      <SearchUsers
+        searchText={searchText}
+        setSearchText={setSearchText}
+        filteredCount={filteredUsers.length}
+        totalCount={users.length}
+      />
 
       <main className='container py-4'>
+        {isLoading && <LoadingUsers/>}
 
-        { isLoading !== "" && (
-            <div className='d=flex align-items-center gap-2'>
-              <div className='spinner-border text-primary' role='status'></div>
-              <span>Loading users.....</span>
-            </div>
+        {errorMessage !== "" && <ErrorMessage message={errorMessage}/>}
+
+        {!isLoading && errorMessage === "" && filteredUsers.length > 0 && (
+          <UserList users={filteredUsers}/>
         )}
 
-        { errorMessage !== "" && (
-            <div className='alert alert-danger' role='alert'>
-              {errorMessage}
-            </div>
-        )}
-
-        { !isLoading && errorMessage === "" && users.length > 0 && (
-          <div className='row gap-3'>
-            {
-              users.map((user) => (
-                <div className='col-12 col-md-6 col-lg-4' key={user.id}>
-                  <article className='card shadow'>
-
-                  </article>
-                </div>
-              ))
-            }
-          </div>
-        )}
-
-        {/* <div className='row g-3'>
-          
-          { // this is how you do a loop
-            students.map((student) => (
-              // needs uniqueness; key goes to the parent of the component
-              <div className='col-12 col-md-4' key={student.id}>
-                  <Profile
-                    name={student.name}
-                    currentWeek={student.currentWeek}
-                    topic={student.topic}
-                    status={student.status}
-                  />
-              </div>
-            ))
-          }
-        </div> */}
       </main>
     </>
   )
 }
 
 export default App
+
+// so for this app.jsx file 
+// help me separate all of the section that can be separated on 
+// app.jsx into their separate components. for example, the loading users 
+// part can be a separate components, as well as the error message, 
+// the search users part and the displaying users through the .map()
