@@ -3,6 +3,7 @@ import Profile from './Profile'
 import Header from './Header'
 import Counter from './Counter';
 import InputControl from './InputControl';
+import { useState, useEffect } from 'react';
 
 function App() {
   // parent component
@@ -52,19 +53,75 @@ function App() {
     }
   ];
 
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    // async makes this function synchronized; like running instructions step by step with no blocking of code
+    async function loadUsers () {
+      // need this block if we are going to request data from another source
+      try {
+        // write code here
+        const response = await fetch("https://jsonplaceholder.typicode.com/users");
+        if (!response.ok) {
+          throw new Error("Could not load users.");
+        }
+        const data = await response.json();
+        setUsers(data); // our react will render again
+
+
+      } catch (error) {
+        // we got an error, write code for that scenario
+        setErrorMessage(error.message);
+
+      }
+    }
+
+    loadUsers();
+  }, []);
+
   return (
     <>
       <Header/>
 
       {/* only needs one tag? */}
-      <Counter/>
+      {/* <Counter/>
       <hr />
 
       <InputControl/>
-      <hr />
+      <hr /> */}
 
       <main className='container py-4'>
-        <div className='row g-3'>
+
+        { isLoading !== "" && (
+            <div className='d=flex align-items-center gap-2'>
+              <div className='spinner-border text-primary' role='status'></div>
+              <span>Loading users.....</span>
+            </div>
+        )}
+
+        { errorMessage !== "" && (
+            <div className='alert alert-danger' role='alert'>
+              {errorMessage}
+            </div>
+        )}
+
+        { !isLoading && errorMessage === "" && users.length > 0 && (
+          <div className='row gap-3'>
+            {
+              users.map((user) => (
+                <div className='col-12 col-md-6 col-lg-4' key={user.id}>
+                  <article className='card shadow'>
+
+                  </article>
+                </div>
+              ))
+            }
+          </div>
+        )}
+
+        {/* <div className='row g-3'>
           
           { // this is how you do a loop
             students.map((student) => (
@@ -79,7 +136,7 @@ function App() {
               </div>
             ))
           }
-        </div>
+        </div> */}
       </main>
     </>
   )
