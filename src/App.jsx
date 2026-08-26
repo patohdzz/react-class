@@ -57,6 +57,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // variable for searching and filtering
+  const [searchText, setSearchText] = useState("");
+  const filteredUsers = users.filter((user) => {
+    return user.name.toLowerCase().includes(searchText.toLowerCase());
+  });
+
   useEffect(() => {
     // async makes this function synchronized; like running instructions step by step with no blocking of code
     async function loadUsers () {
@@ -70,11 +76,12 @@ function App() {
         const data = await response.json();
         setUsers(data); // our react will render again
 
-
       } catch (error) {
         // we got an error, write code for that scenario
         setErrorMessage(error.message);
 
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -84,36 +91,58 @@ function App() {
   return (
     <>
       <Header/>
+      {/* MAKE ALL THIS WORK USING DIFFERENT COMPONENTS; MAYBE CREATE A SEPARATE BRANCH */}
+      <div className='card shadow0sm mb-4'>
+        <div className='card-body'>
+          <label className='form-label' htmlFor="user-search">Search Users</label>
+
+        <input type="text" 
+          id='user-search'
+          className='col-5 form-control'
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+        />
+        <p className='text-muted small mt-2 mb-0'>
+          Showing {filteredUsers.length} of {users.length}
+        </p>
+        </div>
+      </div>
+
+      <hr />
 
       {/* only needs one tag? */}
       {/* <Counter/>
       <hr />
-
       <InputControl/>
       <hr /> */}
 
       <main className='container py-4'>
-
-        { isLoading !== "" && (
+        {isLoading && (
             <div className='d=flex align-items-center gap-2'>
               <div className='spinner-border text-primary' role='status'></div>
               <span>Loading users.....</span>
             </div>
         )}
 
-        { errorMessage !== "" && (
+        {errorMessage !== "" && (
             <div className='alert alert-danger' role='alert'>
               {errorMessage}
             </div>
         )}
 
-        { !isLoading && errorMessage === "" && users.length > 0 && (
+        {!isLoading && errorMessage === "" && filteredUsers.length > 0 && (
           <div className='row gap-3'>
             {
-              users.map((user) => (
-                <div className='col-12 col-md-6 col-lg-4' key={user.id}>
-                  <article className='card shadow'>
-
+              filteredUsers.map((user) => (
+                // we will iterate through each user's id variable in the json
+                <div className='col-12 col-md-3 col-lg-5' key={user.id}>
+                  <article className='card shadow-sm h-100'>
+                    <div className='card-body'>
+                      <h2 className='card-title h5'>{user.name}</h2>
+                      <p className='card-text mb-1'>{user.email}</p>
+                      <p className='card-text text-muted'>{user.company.name}</p>
+                      <span className='badge text-bg-primary'>{user.address.city}</span>
+                    </div>
                   </article>
                 </div>
               ))
@@ -122,7 +151,6 @@ function App() {
         )}
 
         {/* <div className='row g-3'>
-          
           { // this is how you do a loop
             students.map((student) => (
               // needs uniqueness; key goes to the parent of the component
