@@ -125,3 +125,5 @@ export default App
 // app.jsx into their separate components. for example, the loading users 
 // part can be a separate components, as well as the error message, 
 // the search users part and the displaying users through the .map()
+
+// on monday we need portfolio app running and the api components
